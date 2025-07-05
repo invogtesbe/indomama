@@ -2,12 +2,17 @@
 // src/pages/video/[query]/[page].astro
 import Layout from '../../../layouts/BaseLayout.astro';
 import VideoCard from '../../../components/VideoCard.astro';
-import { getAllVideos, type VideoData } from '../../../utils/data.ts';
 import { slugify } from '../../../utils/slugify.ts';
+import type { VideoData } from '../../../utils/data.ts';
+
+import allVideos from '../../../data/allVideos.ts';
 
 export async function getStaticPaths() {
   return [];
 }
+const nama = import.meta.env.PUBLIC_SITE_NAME;
+const desk = import.meta.env.PUBLIC_SITE_DESCRIPTION;
+const url = import.meta.env.PUBLIC_SITE_URL;
 
 const { query, page } = Astro.params;
 const originalQuery = query ? decodeURIComponent(query) : '';
@@ -15,6 +20,8 @@ const currentPage = page ? parseInt(page) : 1;
 const videosPerPage = 40;
 
 const searchInput = originalQuery.toLowerCase().trim();
+
+
 
 // --- Daftar Kata yang Dikecualikan (Stop Words) ---
 const stopWords = new Set([
@@ -43,7 +50,6 @@ let totalPages = 1;
 let paginatedResults: VideoData[] = [];
 let randomPostsBelowSearch: VideoData[] = [];
 
-const allVideos: VideoData[] = await getAllVideos();
 
 // Logika pencarian hanya berjalan jika ada kata kunci yang valid setelah filter stop words
 if (searchWords.length > 0) {
@@ -95,7 +101,7 @@ if (searchWords.length > 0) {
             score += 10;
           }
         });
-        
+
         // 4. Kecocokan di Kategori atau Tags
         searchWords.forEach(word => {
             if (videoCategory.includes(word) || videoTags.includes(word)) {
@@ -124,10 +130,10 @@ if (searchWords.length > 0) {
     paginatedResults = searchResults.slice(startIndex, endIndex);
 
     const numberOfRandomPosts = 12;
-    
+
     const allSearchResultIds = new Set(searchResults.map(v => v.id));
 
-    const videosNotIncludedInSearch = allVideos.filter(video => 
+    const videosNotIncludedInSearch = allVideos.filter(video =>
         !allSearchResultIds.has(video.id)
     );
 
@@ -138,7 +144,7 @@ if (searchWords.length > 0) {
     const domainsSet = new Set<string>();
     paginatedResults.forEach(video => {
       try {
-        if (video.thumbnail) domainsSet.add(new URL(video.thumbnail).origin);
+        // `video.thumbnail` sekarang path lokal, tidak perlu preconnect untuk thumbnail
         if (video.embedUrl) domainsSet.add(new URL(video.embedUrl).origin);
       } catch (e) {
         console.error(`URL tidak valid di JSON untuk video ID ${video.id} (pencarian paginasi):`, e);
@@ -146,7 +152,7 @@ if (searchWords.length > 0) {
     });
     randomPostsBelowSearch.forEach(video => {
       try {
-        if (video.thumbnail) domainsSet.add(new URL(video.thumbnail).origin);
+        // `video.thumbnail` sekarang path lokal
         if (video.embedUrl) domainsSet.add(new URL(video.embedUrl).origin);
       } catch (e) {
         console.error(`URL tidak valid di JSON untuk video ID ${video.id} (random posts):`, e);
@@ -171,7 +177,7 @@ if (searchWords.length > 0) {
     const domainsSet = new Set<string>();
     randomPostsBelowSearch.forEach(video => {
       try {
-        if (video.thumbnail) domainsSet.add(new URL(video.thumbnail).origin);
+        // `video.thumbnail` sekarang path lokal
         if (video.embedUrl) domainsSet.add(new URL(video.embedUrl).origin);
       } catch (e) {
         console.error(`URL tidak valid di JSON untuk video ID ${video.id} (random posts - no query):`, e);
@@ -181,7 +187,7 @@ if (searchWords.length > 0) {
 }
 
 
-const baseSearchUrl = `/video/${originalQuery}`;
+const baseSearchUrl = `${url}/video/${originalQuery}`;
 
 function capitalizeWords(str: string): string {
   const words = str
@@ -196,9 +202,6 @@ function capitalizeWords(str: string): string {
 }
 
 const displayQuery = capitalizeWords(originalQuery);
-const url = import.meta.env.PUBLIC_SITE_URL;
-const nama = import.meta.env.PUBLIC_SITE_NAME;
-const desk = import.meta.env.PUBLIC_SITE_DESCRIPTION;
 
 const breadcrumbs = [
   { name: 'Home', url: `${url}` },

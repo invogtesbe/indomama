@@ -26,6 +26,11 @@
   --text-color-heading: var(--text-color);
   --text-color-body: var(--text-color);
   --button-text-color: white; /* Default button text color */
+
+  /* --- Tambahan untuk thumbnail --- */
+  --thumbnail-width-base: 300px; /* Lebar dasar thumbnail */
+  --thumbnail-aspect-ratio: 56.25%; /* Rasio aspek 16:9 (9/16 * 100%) */
+  /* --- Akhir Tambahan untuk thumbnail --- */
 }
 
 body.dark-mode {
@@ -451,7 +456,8 @@ main {
 
 .thumbnail-container {
   width: 100%;
-  padding-bottom: 56.25%;
+  /* Menggunakan variabel untuk rasio aspek */
+  padding-bottom: var(--thumbnail-aspect-ratio); /* Contoh: 56.25% untuk 16:9 */
   position: relative;
   overflow: hidden;
 }
@@ -1002,6 +1008,9 @@ footer {
   }
   .short-video-description {
     font-size: 0.95rem;
+  }
+  .video-container {
+    max-width: 100%; /* Full width on very small screens */
   }
 }
 

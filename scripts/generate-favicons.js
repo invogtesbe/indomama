@@ -3,6 +3,7 @@ import favicons from 'favicons';
 import fs from 'fs/promises';
 import path from 'path';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const SOURCE_IMAGE = 'public/favicon.svg';
